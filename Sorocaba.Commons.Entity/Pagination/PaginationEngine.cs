@@ -1,4 +1,5 @@
 ﻿using LinqKit;
+using Microsoft.AspNetCore.Http;
 using Sorocaba.Commons.Entity.Reflection;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 namespace Sorocaba.Commons.Entity.Pagination {
     public static class PaginationEngine {
 
-        public static PaginatedResult<T> Paginate<T>(IQueryable<T> query, HttpRequestMessage request) where T : class {
+        public static PaginatedResult<T> Paginate<T>(IQueryable<T> query, HttpRequest request) where T : class {
             return Paginate<T>(query, ParametersParser.FromRequest(request));
         }
 

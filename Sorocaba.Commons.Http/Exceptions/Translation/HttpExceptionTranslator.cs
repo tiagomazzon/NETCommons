@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Sorocaba.Commons.Foundation.Exceptions;
 using Sorocaba.Commons.Http.Json.Binding;
 
@@ -16,7 +17,7 @@ namespace Sorocaba.Commons.Http.Exceptions.Translation {
             this.customTranslators = customTranslators;
         }
 
-        public void TranslateException(Exception exception, ref HttpStatusCode responseStatus, ref HttpExceptionData responseData) {
+        public void TranslateException(Exception exception, ref int responseStatus, ref HttpExceptionData responseData) {
 
             if (exception is AggregateException) {
                 exception = ExceptionUtils.GetInnerException(exception);
@@ -26,12 +27,12 @@ namespace Sorocaba.Commons.Http.Exceptions.Translation {
             responseData.SetFromException(exception);
 
             if (exception is IBusinessException) {
-                responseStatus = HttpStatusCode.PreconditionFailed;
+                responseStatus = StatusCodes.Status412PreconditionFailed;
                 responseData.Message = exception.Message;
             }
 
             else if (exception is JsonBindingException) {
-                responseStatus = HttpStatusCode.BadRequest;
+                responseStatus = StatusCodes.Status400BadRequest;
                 responseData.Message = Strings.MalformedRequestData;
                 responseData.SetFromException(exception.InnerException);
             }
@@ -51,7 +52,7 @@ namespace Sorocaba.Commons.Http.Exceptions.Translation {
             }
 
             if (exception is IHttpStatusCodeException) {
-                responseStatus = (exception as IHttpStatusCodeException).GetStatusCode();
+                responseStatus = StatusCodes.Status500InternalServerError;
             }
 
             if (exception is IDataException) {

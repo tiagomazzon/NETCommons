@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LinqKit;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -9,9 +11,11 @@ using System.Threading.Tasks;
 namespace Sorocaba.Commons.Entity.Pagination {
     public static class ParametersParser {
 
-        public static PaginationParameters FromRequest(HttpRequestMessage request)  {
+        public static PaginationParameters FromRequest(HttpRequest request)  {
             try {
-                var requestParameters = request.GetQueryNameValuePairs();
+                List<KeyValuePair<string, string>> requestParameters = new List<KeyValuePair<string, string>>();
+
+                request.Query.ForEach(f => requestParameters.Add(new KeyValuePair<string, string>(f.Key, f.Value)));
                 Func<string, string> GetParameter = (key) => requestParameters.Where(p => p.Key == key).FirstOrDefault().Value;
 
                 int page;

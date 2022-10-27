@@ -1,4 +1,7 @@
-﻿using Sorocaba.Commons.Foundation.Exceptions;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Sorocaba.Commons.Foundation.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +9,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web.Http.Filters;
 
 namespace Sorocaba.Commons.Http.Exceptions.Translation {
     public class HttpExceptionFilterAttribute : ExceptionFilterAttribute {
@@ -20,9 +22,9 @@ namespace Sorocaba.Commons.Http.Exceptions.Translation {
             ShowStackTrace = showStackTrace;
         }
 
-        public override void OnException(HttpActionExecutedContext ctx) {
+        public override void OnException(ExceptionContext ctx) {
 
-            HttpStatusCode responseStatus = HttpStatusCode.InternalServerError;
+            var responseStatus = StatusCodes.Status500InternalServerError;
             HttpExceptionData responseData = new HttpExceptionData();
 
             ExceptionTranslator.TranslateException(ctx.Exception, ref responseStatus, ref responseData);
@@ -31,7 +33,8 @@ namespace Sorocaba.Commons.Http.Exceptions.Translation {
                 responseData.ErrorStackTrace = null;
             }
 
-            ctx.Response = ctx.Request.CreateResponse(responseStatus, responseData);
+            ctx.HttpContext.Response.StatusCode = responseStatus;
+            ctx.Result = new OkObjectResult(responseData);
         }
     }
 }
